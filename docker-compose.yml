@@ -1,13 +1,15 @@
-version: "3.7"
 
 services:
   saltcorn-app:
     image: saltcorn/saltcorn
     container_name: saltcorn
+    build:
+      context: .
+      dockerfile: ./Dockerfile.dev
     depends_on:
       - saltcorn-db
     command: "serve"
-    restart: always
+    restart: unless-stopped
     networks:
       - saltcorn
     ports: #not needed if using traefik
@@ -28,11 +30,13 @@ services:
   saltcorn-db:
     image: postgres:13-alpine
     container_name: saltcorn-db
-    restart: always
+    restart: unless-stopped
     networks:
       - saltcorn
+    ports:
+      - "3542:5432"
     volumes:
-      - ./data:/var/lib/postgresql/data #save the db to a mount point if you wish, otherwise will use docker container management
+      - saltcorn:/var/lib/postgresql/data #save the db to a mount point if you wish, otherwise will use docker container management
       - ./docker-entrypoint-initdb.sql:/docker-entrypoint-initdb.d/init.sql # This is the init script for the database
     environment:
       - POSTGRES_USER=${PGUSER} # initdb.sql script will only work for user "postgres"
@@ -42,3 +46,7 @@ services:
 networks:
   saltcorn:
     name: saltcorn-net
+
+volumes:
+  saltcorn:
+    name: saltcorn-data

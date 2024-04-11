@@ -127,3 +127,5 @@ package-lock.json
 !packages/saltcorn-builder/package-lock.json
 !/package-lock.json
 plugins_folder/
+!.env
+data/
